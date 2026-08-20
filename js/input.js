@@ -11,7 +11,12 @@ const KEYMAP = {
   KeyK: DIR.up, KeyJ: DIR.down, KeyH: DIR.left, KeyL: DIR.right,
 };
 
-export function createInput({ stage, dpad, onDir, onPause, onFirstInput }) {
+// ปัดนิ้วได้ทั่วจอ ยกเว้น "ตัวปุ่ม" จริงๆ — บนมือถือนิ้วโป้งอยู่ครึ่งล่าง
+// ถ้าจำกัดให้ปัดได้แค่บนเมซ ผู้เล่นต้องเอื้อมขึ้นไปทุกครั้ง จึงเปิดให้พื้นที่
+// ว่างข้าง D-pad ปัดได้ด้วย (กันไว้แค่ตัว D-pad, ปุ่ม และหน้าจอซ้อน)
+const NO_SWIPE = '.dpad, button, .overlay';
+
+export function createInput({ swipeArea, dpad, onDir, onPause, onFirstInput }) {
   let firstDone = false;
   const fireFirst = () => {
     if (firstDone) return;
@@ -31,6 +36,7 @@ export function createInput({ stage, dpad, onDir, onPause, onFirstInput }) {
   const active = new Map();
 
   const onDown = (ev) => {
+    if (ev.target.closest?.(NO_SWIPE)) return;
     active.set(ev.pointerId, { x: ev.clientX, y: ev.clientY, fired: false });
     fireFirst();
   };
@@ -62,15 +68,16 @@ export function createInput({ stage, dpad, onDir, onPause, onFirstInput }) {
     return s;
   };
 
-  stage.addEventListener('pointerdown', onDown, { passive: true });
-  stage.addEventListener('pointermove', onMove, { passive: true });
-  stage.addEventListener('pointerup', onUp, { passive: true });
-  stage.addEventListener('pointercancel', onUp, { passive: true });
+  swipeArea.addEventListener('pointerdown', onDown, { passive: true });
+  swipeArea.addEventListener('pointermove', onMove, { passive: true });
+  swipeArea.addEventListener('pointerup', onUp, { passive: true });
+  swipeArea.addEventListener('pointercancel', onUp, { passive: true });
 
   // ── ปุ่ม D-pad ─────────────────────────────────────────
   // ใช้ pointerdown เพื่อให้ตอบสนองทันที และ setPointerCapture ให้ลากนิ้ว
   // ข้ามปุ่มได้โดยไม่หลุด
   const held = new Set();
+  const dpadPointers = new Set();
   const paint = () => {
     dpad.querySelectorAll('.dbtn').forEach((b) => {
       b.classList.toggle('active', held.has(b.dataset.dir));
@@ -90,13 +97,23 @@ export function createInput({ stage, dpad, onDir, onPause, onFirstInput }) {
       held.delete(dirName);
       paint();
     };
-    btn.addEventListener('pointerdown', press);
-    btn.addEventListener('pointerenter', (ev) => {
-      if (ev.buttons) press(ev);
+    btn.addEventListener('pointerdown', (ev) => {
+      dpadPointers.add(ev.pointerId);
+      press(ev);
     });
-    btn.addEventListener('pointerup', release);
+    // ลากนิ้วข้ามไปปุ่มอื่นได้ แต่ต้องเป็นนิ้วที่เริ่มกดจาก D-pad เท่านั้น
+    btn.addEventListener('pointerenter', (ev) => {
+      if (ev.buttons && dpadPointers.has(ev.pointerId)) press(ev);
+    });
+    btn.addEventListener('pointerup', (ev) => {
+      dpadPointers.delete(ev.pointerId);
+      release(ev);
+    });
     btn.addEventListener('pointerleave', release);
-    btn.addEventListener('pointercancel', release);
+    btn.addEventListener('pointercancel', (ev) => {
+      dpadPointers.delete(ev.pointerId);
+      release(ev);
+    });
     btn.addEventListener('contextmenu', (ev) => ev.preventDefault());
   });
 
@@ -123,6 +140,14 @@ export function createInput({ stage, dpad, onDir, onPause, onFirstInput }) {
   // กันการซูมด้วยสองนิ้ว / ดับเบิลแท็บบน iOS
   document.addEventListener('gesturestart', (ev) => ev.preventDefault());
   document.addEventListener('dblclick', (ev) => ev.preventDefault());
+
+  // นิ้วหลุดออกนอกจอกลางทาง — ล้างสถานะปุ่มที่ค้างไว้
+  window.addEventListener('pointerup', (ev) => dpadPointers.delete(ev.pointerId));
+  window.addEventListener('pointercancel', (ev) => {
+    dpadPointers.delete(ev.pointerId);
+    held.clear();
+    paint();
+  });
 
   return {
     destroy() {

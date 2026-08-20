@@ -285,7 +285,7 @@ ui.initUi({
 });
 
 createInput({
-  stage,
+  swipeArea: document.body,
   dpad: document.getElementById('dpad'),
   onDir: (dir) => {
     if (paused || game.state === S.OVER) return;
