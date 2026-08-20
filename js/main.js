@@ -218,13 +218,24 @@ function draw() {
     drawBanner(ctx, maze, tile, [{ text: 'GAME OVER', color: '#ff5470', size: 1.1 }]);
   }
 
-  if (fx.flash > 0) {
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.globalAlpha = Math.min(0.55, fx.flash);
-    ctx.fillStyle = fx.flashColor;
-    ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-    ctx.globalAlpha = 1;
-  }
+  if (fx.flash > 0) drawFlash();
+}
+
+/**
+ * แฟลชแบบ vignette — สว่างที่ขอบจอ ใสตรงกลาง
+ * แฟลชทั้งจอทึบๆ จะกลบเมซจนมองไม่เห็นผีในจังหวะที่สำคัญที่สุด
+ */
+function drawFlash() {
+  const w = canvas.width / dpr;
+  const h = canvas.height / dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.2, w / 2, h / 2, Math.max(w, h) * 0.62);
+  g.addColorStop(0, 'transparent');
+  g.addColorStop(1, fx.flashColor);
+  ctx.globalAlpha = Math.min(0.5, fx.flash);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+  ctx.globalAlpha = 1;
 }
 
 function drawDebug() {

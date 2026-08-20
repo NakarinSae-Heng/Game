@@ -232,7 +232,7 @@ export class Game {
     if (this.combo.justUp && this.combo.mul > 1) {
       this.stats.bestCombo = Math.max(this.stats.bestCombo, this.combo.mul);
       this.fx.text(this.pac.x, this.pac.y - 0.8, `COMBO x${this.combo.mul}`, '#46e0ff', 0.85);
-      this.fx.addFlash('#46e0ff', 0.16);
+      this.fx.addFlash('#46e0ff', 0.22);
       this.audio.combo(this.combo.mul);
       this.fx.vibrate(12);
     }
@@ -244,7 +244,7 @@ export class Game {
       for (const g of this.ghosts) g.frighten(this.frightTime);
       this.fx.ring(tx, ty, '#ffffff', 4.5);
       this.fx.addShake(0.35);
-      this.fx.addFlash('#8fa2ff', 0.3);
+      this.fx.addFlash('#8fa2ff', 0.5);
       this.audio.powerPellet();
       this.fx.vibrate([18, 28, 18]);
       this.emit('frightened', this.frightTime);
@@ -336,7 +336,7 @@ export class Game {
     this.fx.ring(g.x, g.y, '#ffffff', 3.6);
     this.fx.text(g.x, g.y - 0.9, `+${pts}`, '#46e0ff', 1.15);
     this.fx.addShake(0.62);
-    this.fx.addFlash('#ffffff', 0.42);
+    this.fx.addFlash('#ffffff', 0.6);
     this.fx.addHitstop(0.07);
     this.fx.addSlowMo();
     this.audio.eatGhost(this.ghostChain - 1);
