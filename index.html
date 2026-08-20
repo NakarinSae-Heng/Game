@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>PAC RUSH — แพ็คแมนมือถือ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1">
+<meta name="theme-color" content="#05060f">
+<meta name="description" content="เกม Pac-Man สำหรับมือถือ เล่นด้วยการปัดนิ้วหรือปุ่มบนหน้าจอ มี power-up คอมโบ ภารกิจรายวัน และตารางคะแนน">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PAC RUSH">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── แถบสถานะด้านบน ─────────────────────────────── -->
+  <header id="topbar">
+    <div class="stat">
+      <span class="stat-label">คะแนน</span>
+      <strong id="hud-score">0</strong>
+    </div>
+    <div class="stat stat-mid">
+      <span class="stat-label">ด่าน</span>
+      <strong id="hud-level">1</strong>
+    </div>
+    <div class="stat stat-right">
+      <span class="stat-label">สูงสุด</span>
+      <strong id="hud-best">0</strong>
+    </div>
+    <button id="btn-pause" class="icon-btn" type="button" aria-label="หยุดพัก">❚❚</button>
+  </header>
+
+  <div id="subbar">
+    <div id="hud-lives" class="lives" aria-label="ชีวิตที่เหลือ"></div>
+    <div id="hud-powerups" class="powerups"></div>
+  </div>
+
+  <!-- ── สนามเล่น ───────────────────────────────────── -->
+  <main id="stage">
+    <canvas id="game" width="560" height="620"></canvas>
+    <div id="toast" class="toast" hidden></div>
+  </main>
+
+  <!-- ── ปุ่มควบคุมบนหน้าจอ ─────────────────────────── -->
+  <div id="controls">
+    <div id="dpad" class="dpad" role="group" aria-label="ปุ่มบังคับทิศทาง">
+      <button class="dbtn up"    data-dir="up"    type="button" aria-label="ขึ้น"></button>
+      <button class="dbtn left"  data-dir="left"  type="button" aria-label="ซ้าย"></button>
+      <button class="dbtn right" data-dir="right" type="button" aria-label="ขวา"></button>
+      <button class="dbtn down"  data-dir="down"  type="button" aria-label="ลง"></button>
+      <span class="dpad-hub" aria-hidden="true"></span>
+    </div>
+    <p id="swipe-hint" class="hint">ปัดนิ้วที่สนาม หรือกดปุ่มเพื่อบังคับ</p>
+  </div>
+
+</div>
+
+<!-- ── หน้าจอซ้อน (เมนู / พัก / จบเกม) ─────────────── -->
+<div id="overlay" class="overlay">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
