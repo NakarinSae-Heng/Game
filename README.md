@@ -94,6 +94,30 @@ node tools/validate-mazes.mjs --print  # พิมพ์ผังเมซออ
 บันทึกคะแนน → ขึ้นด่านใหม่ครบทั้ง 6 เมซ, ไม่มี error ใน console,
 เฟรมละ ~16.7ms (60fps) และ layout พอดีจอตั้งแต่ 375×553 ถึง iPad ทั้งแนวตั้งและแนวนอน
 
+## Deploy
+
+### Vercel
+
+repo นี้มี `vercel.json` มาให้แล้ว ตั้งค่าเพิ่มไม่ต้องเลย — Framework เลือก **Other**,
+ไม่มี build command, ไม่มี environment variable
+
+`vercel.json` ตั้ง header ไว้ 3 ข้อ ซึ่งจำเป็นเพราะค่า default จะทำให้ PWA พัง:
+
+| ไฟล์ | header | ทำไม |
+|---|---|---|
+| `sw.js` | `max-age=0, must-revalidate` | ถ้า service worker ถูก cache ตามปกติ ผู้เล่นจะติดเกมเวอร์ชันเก่าไปตลอด แก้โค้ดแล้วก็ไม่เห็นผล |
+| `manifest.webmanifest` | `application/manifest+json` | ถ้า MIME type ไม่ถูก มือถือจะไม่เสนอ "เพิ่มไปยังหน้าจอโฮม" |
+| `icons/*` | `immutable` 1 ปี | ไอคอนไม่เปลี่ยน จึง cache ยาวได้ |
+
+หมายเหตุ: อย่าใส่คีย์ที่ schema ไม่รู้จัก (เช่น `comment`) ลงใน `vercel.json`
+Vercel จะปฏิเสธทั้งไฟล์ด้วย error `should NOT have additional property`
+
+### GitHub Pages
+
+Settings → Pages → Source `Deploy from a branch` → เลือก branch นี้ + folder `/ (root)`
+(GitHub Pages ไม่อ่าน `vercel.json` แต่ตั้ง MIME type และ cache ของ `.webmanifest`
+กับ service worker ให้เหมาะสมอยู่แล้ว)
+
 ## หมายเหตุ
 
 - ไม่มี unit test framework เพราะโปรเจกต์ไม่มี build step และ logic ผูกกับการวาดภาพ
